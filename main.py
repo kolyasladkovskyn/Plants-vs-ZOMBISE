@@ -1,3 +1,5 @@
+import sys
+import os
 import random
 
 import pygame
@@ -80,6 +82,21 @@ class Board:
                         x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
                         self.cell_size), 1)
 
+    def on_click(self, cell):
+        pass
+
+    def get_cell(self, mouse_pos):
+        cell_x = (mouse_pos[0] - self.left) // self.cell_size
+        cell_y = (mouse_pos[1] - self.top) // self.cell_size
+        if cell_x < 0 or cell_x >= self.width or cell_y < 0 or cell_y >= self.height:
+            return None
+        return cell_x, cell_y
+
+    def get_click(self, mouse_pos):
+        cell = self.get_cell(mouse_pos)
+        if cell:
+            self.on_click(cell)
+
     def car1_move(self):
         for oi in range(len(self.boar[0:9])):
             for om in range(len(self.boar[0 + oi])):
@@ -90,8 +107,6 @@ class Board:
                     else:
                         self.boar[oi][om + 1] = str(random.randint(0, 2))
                         self.boar[oi][om] = str(random.randint(0, 2))
-                if self.boar[oi][om] == "z_st":
-                    self.boar[oi][om] = str(random.randint(0, 2))
 
     def car2_move(self):
         for oi in range(len(self.boar[9:19])):
@@ -103,8 +118,6 @@ class Board:
                     else:
                         self.boar[oi + 9][om + 1] = str(random.randint(0, 2))
                         self.boar[oi + 9][om] = str(random.randint(0, 2))
-                if self.boar[oi + 9][om] == "z_st":
-                    self.boar[oi + 9][om] = str(random.randint(0, 2))
 
     def car3_move(self):
         for oi in range(len(self.boar[19:29])):
@@ -116,8 +129,6 @@ class Board:
                     else:
                         self.boar[oi + 19][om + 1] = str(random.randint(0, 2))
                         self.boar[oi + 19][om] = str(random.randint(0, 2))
-                if self.boar[oi + 19][om] == "z_st":
-                    self.boar[oi + 19][om] = str(random.randint(0, 2))
 
     def car4_move(self):
         for oi in range(len(self.boar[29:39])):
@@ -129,8 +140,6 @@ class Board:
                     else:
                         self.boar[oi + 29][om + 1] = str(random.randint(0, 2))
                         self.boar[oi + 29][om] = str(random.randint(0, 2))
-                if self.boar[oi + 29][om] == "z_st":
-                    self.boar[oi + 29][om] = str(random.randint(0, 2))
 
     def car5_move(self):
         for oi in range(len(self.boar[39:49])):
@@ -142,8 +151,6 @@ class Board:
                     else:
                         self.boar[oi + 39][om + 1] = str(random.randint(0, 2))
                         self.boar[oi + 39][om] = str(random.randint(0, 2))
-                if self.boar[oi + 39][om] == "z_st":
-                    self.boar[oi + 39][om] = str(random.randint(0, 2))
 
     def zombi_move(self, pose_y, pose_x):
         if 9 < pose_y <= 19 and pose_x == 9:
@@ -167,7 +174,7 @@ class Board:
                 self.car5 = 0
                 self.car5_move()
 
-        if pose_x != 1:
+        if pose_x != 1 and self.boar[pose_y][pose_x - 1] != "gy":
             self.boar[pose_y][pose_x - 1] = "z_st"
             if pose_x * 18 <= 162 and self.boar[pose_y][pose_x - 1] != "gy":
                 self.boar[pose_y][pose_x] = "3"
@@ -205,10 +212,40 @@ class Board:
             self.boar[46][99] = "z_st"
 
 
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    return image
+
+
 if __name__ == '__main__':
     pygame.init()
     time = 0
     time2 = 0
+
+    all_sprites = pygame.sprite.Group()
+    plant = pygame.sprite.Sprite()
+    plant.image = load_image("green.png")
+    plant.rect = plant.image.get_rect()
+    plant.rect.x = 10
+    plant.rect.y = 10
+    all_sprites.add(plant)
+    sunflower = pygame.sprite.Sprite()
+    sunflower.image = load_image("sunflow.png")
+    sunflower.rect = plant.image.get_rect()
+    sunflower.rect.x = 100
+    sunflower.rect.y = 10
+    all_sprites.add(sunflower)
+    nut = pygame.sprite.Sprite()
+    nut.image = load_image("nut.png")
+    nut.rect = plant.image.get_rect()
+    nut.rect.x = 190
+    nut.rect.y = 10
+    all_sprites.add(nut)
+
     size = width, height = 800, 400
     screen = pygame.display.set_mode(size)
     DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -216,7 +253,10 @@ if __name__ == '__main__':
     running = True
     clock = pygame.time.Clock()
     clock2 = pygame.time.Clock()
+    all_sprites.draw(screen)
+    pygame.display.flip()
     board.render(screen)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -224,7 +264,6 @@ if __name__ == '__main__':
 
         time += clock.tick()
         time2 += clock2.tick()
-        print(time)
         if time >= 15000:
             board.zombi_spawn()
             time = 0
@@ -234,6 +273,7 @@ if __name__ == '__main__':
                     if board.boar[mo][io] == "z_st":
                         board.zombi_move(mo, io)
                         time2 = 0
+
         board.render(screen)
         pygame.display.flip()
     pygame.quit()
