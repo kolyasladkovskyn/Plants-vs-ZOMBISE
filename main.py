@@ -58,6 +58,39 @@ def load_image(name, colorkey=None):
     return image
 
 
+class Zombi1(pygame.sprite.Sprite):
+    com = load_image("zombi_1.png")
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        self.image = Zombi1.com
+        self.rect = self.image.get_rect()
+        self.rect.x = 1730
+        self.rect.y = random.randint(5) * 180 + 130
+
+
+class Zombi2(pygame.sprite.Sprite):
+    rar = load_image("zombi_2.png")
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        self.image = Zombi1.rar
+        self.rect = self.image.get_rect()
+        self.rect.x = 1730
+        self.rect.y = random.randint(5) * 180 + 130
+
+
+class Zombi3(pygame.sprite.Sprite):
+    hard = load_image("zombi_3.png")
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        self.image = Zombi1.hard
+        self.rect = self.image.get_rect()
+        self.rect.x = 1730
+        self.rect.y = random.randint(5) * 180 + 130
+
+
 class Plant(pygame.sprite.Sprite):
     re = load_image("re.png")
     sn = load_image("sn.png")
@@ -91,6 +124,7 @@ class Plant(pygame.sprite.Sprite):
 if __name__ == '__main__':
     image = load_image("grass.png")
     image2 = load_image("grass2.png")
+    zombis = pygame.sprite.Group()
     plants = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     plant = pygame.sprite.Sprite()
@@ -133,7 +167,8 @@ if __name__ == '__main__':
     all_sprites.draw(screen)
     pygame.display.flip()
     board.render(screen)
-
+    ti = 0
+    clock = pygame.time.Clock()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -150,8 +185,17 @@ if __name__ == '__main__':
                 y_p = (board.get_cell(event.pos)[1]) * 180 + 130
                 print(x_p, y_p)
                 Plant(plants, num=typ, x=x_p, y=y_p)
+            ti += clock.tick()
+            if ti >= 15000:
+                d = random.randint(3)
+                if d == 0:
+                    Zombi1(zombis)
+                elif d == 1:
+                    Zombi2(zombis)
+                elif d == 2:
+                    Zombi3(zombis)
+            zombis.draw(screen)
             plants.draw(screen)
         board.render(screen)
         pygame.display.flip()
-    pygame.quit()
-
+    pygame.quit()       
