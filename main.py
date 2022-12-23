@@ -57,39 +57,47 @@ def load_image(name, colorkey=None):
         image = image.convert_alpha()
     return image
 
-
-class Zombi1(pygame.sprite.Sprite):
-    com = load_image("zombi_1.png")
+class Sun(pygame.sprite.Sprite):
+    sun = load_image("sun.png", colorkey="white")
 
     def __init__(self, *group):
         super().__init__(*group)
-        self.image = Zombi1.com
+        self.image = Sun.sun
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, 9) * 180 + 20
+        self.rect.y = random.randint(0, 4) * 180 + 130
+
+    def update(self, *args):
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.kill()
+
+class Zombi(pygame.sprite.Sprite):
+    def __init__(self, *group, image):
+        super().__init__(*group)
+        self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = 1730
         self.rect.y = random.randint(5) * 180 + 130
 
-
-class Zombi2(pygame.sprite.Sprite):
-    rar = load_image("zombi_2.png")
-
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = Zombi1.rar
-        self.rect = self.image.get_rect()
-        self.rect.x = 1730
-        self.rect.y = random.randint(5) * 180 + 130
+    def update(self):
+        self.rect = self.rect.move(-1, 0)
+        if self.rect.x <= 20:
+            self.kill()
 
 
-class Zombi3(pygame.sprite.Sprite):
-    hard = load_image("zombi_3.png")
+class Zombi1(Zombi):
+    super().__init__(*group, load_image("zombi_1.png"))
+    health = 100
 
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = Zombi1.hard
-        self.rect = self.image.get_rect()
-        self.rect.x = 1730
-        self.rect.y = random.randint(5) * 180 + 130
 
+class Zombi2(Zombi):
+    super().__init__(*group, load_image("zombi_2.png"))
+    health = 150
+
+class Zombi2(Zombi):
+    super().__init__(*group, load_image("zombi_2.png"))
+    health = 200
 
 class Plant(pygame.sprite.Sprite):
     re = load_image("re.png")
@@ -127,6 +135,7 @@ if __name__ == '__main__':
     zombis = pygame.sprite.Group()
     plants = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
+    suns = pygame.sprite.Group()
     plant = pygame.sprite.Sprite()
     plant.image = load_image("green.png")
     plant.rect = plant.image.get_rect()
@@ -149,6 +158,7 @@ if __name__ == '__main__':
     x = 0
     y = 0
     board = Board(10, 5)
+    d = 0
     running = True
     for i in range(5):
         if y % 2 == 0:
@@ -165,8 +175,9 @@ if __name__ == '__main__':
                 x += 1
                 screen.blit(image2, (20 + 180 * t, 130 + 180 * i))
     all_sprites.draw(screen)
-    pygame.display.flip()
     board.render(screen)
+    ti2 = 0
+    clock2 = pygame.time.Clock()
     ti = 0
     clock = pygame.time.Clock()
     while running:
@@ -180,22 +191,32 @@ if __name__ == '__main__':
                     typ = 2
                 elif event.key == pygame.K_3:
                     typ = 3
+            if typ != 0:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                    y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                    print(x_p, y_p)
+                    Plant(plants, num=typ, x=x_p, y=y_p)
             if event.type == pygame.MOUSEBUTTONDOWN:
-                x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                print(x_p, y_p)
-                Plant(plants, num=typ, x=x_p, y=y_p)
-            ti += clock.tick()
-            if ti >= 15000:
-                d = random.randint(3)
-                if d == 0:
-                    Zombi1(zombis)
-                elif d == 1:
-                    Zombi2(zombis)
-                elif d == 2:
-                    Zombi3(zombis)
-            zombis.draw(screen)
-            plants.draw(screen)
-        board.render(screen)
+                for sun in suns:
+                    sun.update()
+        ti += clock.tick()
+        ti2 += clock2.tick()
+        if ti >= 15000:
+            d = random.randint(0, 2)
+            if d == 0:
+                Zombi1(zombis)
+            elif d == 1:
+                Zombi2(zombis)
+            elif d == 2:
+                Zombi3(zombis)
+            ti = 0
+        if ti2 >= 5000:
+            Sun(suns)
+            ti2 = 0
+        suns.draw(screen)
+        zombis.draw(screen)
+        plants.draw(screen)
+        zombis.update()
         pygame.display.flip()
     pygame.quit()       
