@@ -73,12 +73,12 @@ class Sun(pygame.sprite.Sprite):
             self.kill()
 
 class Zombi(pygame.sprite.Sprite):
-    def __init__(self, *group, image):
-        super().__init__(*group)
+    def __init__(self, image):
+        super().__init__(zombis)
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = 1730
-        self.rect.y = random.randint(5) * 180 + 130
+        self.rect.y = random.randint(0, 4) * 180 + 130
 
     def update(self):
         self.rect = self.rect.move(-1, 0)
@@ -87,17 +87,20 @@ class Zombi(pygame.sprite.Sprite):
 
 
 class Zombi1(Zombi):
-    super().__init__(*group, load_image("zombi_1.png"))
-    health = 100
+    def __init__(self):
+        super().__init__(load_image("zombi_1.png"))
+        self.health = 100
 
 
 class Zombi2(Zombi):
-    super().__init__(*group, load_image("zombi_2.png"))
-    health = 150
+    def __init__(self):
+        super().__init__(load_image("zombi_2.png"))
+        self.health = 150
 
-class Zombi2(Zombi):
-    super().__init__(*group, load_image("zombi_2.png"))
-    health = 200
+class Zombi3(Zombi):
+    def __init__(self):
+        super().__init__(load_image("zombi_3.png"))
+        self.health = 200
 
 class Plant(pygame.sprite.Sprite):
     re = load_image("re.png")
@@ -205,11 +208,11 @@ if __name__ == '__main__':
         if ti >= 15000:
             d = random.randint(0, 2)
             if d == 0:
-                Zombi1(zombis)
+                Zombi1()
             elif d == 1:
-                Zombi2(zombis)
+                Zombi2()
             elif d == 2:
-                Zombi3(zombis)
+                Zombi3()
             ti = 0
         if ti2 >= 5000:
             Sun(suns)
