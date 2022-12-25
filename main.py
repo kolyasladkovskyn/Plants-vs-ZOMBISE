@@ -67,10 +67,9 @@ class Sun(pygame.sprite.Sprite):
         self.rect.x = random.randint(0, 9) * 180 + 20
         self.rect.y = random.randint(0, 4) * 180 + 130
 
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.kill()
+    def update(self):
+        print(1)
+        self.kill()
 
 class Zombi(pygame.sprite.Sprite):
     def __init__(self, image):
@@ -90,7 +89,6 @@ class Zombi1(Zombi):
     def __init__(self):
         super().__init__(load_image("zombi_1.png"))
         self.health = 100
-
 
 class Zombi2(Zombi):
     def __init__(self):
@@ -202,7 +200,9 @@ if __name__ == '__main__':
                     Plant(plants, num=typ, x=x_p, y=y_p)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sun in suns:
-                    sun.update()
+                    if sun.rect.collidepoint(event.pos):
+                        print(1)
+                        sun.update()
         ti += clock.tick()
         ti2 += clock2.tick()
         if ti >= 15000:
