@@ -69,6 +69,7 @@ class Sun(pygame.sprite.Sprite):
 
     def update(self):
         print(1)
+
         self.kill()
 
 class Zombi(pygame.sprite.Sprite):
@@ -158,6 +159,7 @@ if __name__ == '__main__':
     typ = 0
     x = 0
     y = 0
+    money = 0
     board = Board(10, 5)
     d = 0
     running = True
@@ -194,15 +196,28 @@ if __name__ == '__main__':
                     typ = 3
             if typ != 0:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                    y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                    print(x_p, y_p)
-                    Plant(plants, num=typ, x=x_p, y=y_p)
+                    if typ == 1 and money >= 100:
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        money -= 100
+                    elif typ == 2 and money >= 50:
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        money -= 50
+                    elif typ == 3 and money >= 50:
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        money -= 50
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sun in suns:
                     if sun.rect.collidepoint(event.pos):
                         print(1)
                         sun.update()
+                        money += 25
+                        print(money)
         ti += clock.tick()
         ti2 += clock2.tick()
         if ti >= 15000:
