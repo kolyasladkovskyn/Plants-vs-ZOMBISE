@@ -102,34 +102,26 @@ class Zombi3(Zombi):
         self.health = 200
 
 class Plant(pygame.sprite.Sprite):
-    re = load_image("re.png")
-    sn = load_image("sn.png")
-    cu = load_image("cu.png")
-
-    def __init__(self, *group, num, x, y):
-        super().__init__(*group)
-        self.num = num
+    def __init__(self, image, x, y):
+        super().__init__(plants)
+        self.image = image
         self.x = x
         self.y = y
-        if num == 1:
-            self.image = Plant.re
-            self.rect = self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
-            print(1)
-        elif num == 2:
-            self.image = Plant.sn
-            self.rect = self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
-            print(2)
-        elif num == 3:
-            self.image = Plant.cu
-            self.rect = self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
-            print(3)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
+class Peas(Plant):
+    def __init__(self, x, y):
+        super().__init__(load_image("re.png"), x, y)
+
+class Sunflower(Plant):
+    def __init__(self, x, y):
+        super().__init__(load_image("sn.png"), x, y)
+
+class Nut(Plant):
+    def __init__(self, x, y):
+        super().__init__(load_image("cu.png"), x, y)
 
 if __name__ == '__main__':
     image = load_image("grass.png")
@@ -199,17 +191,17 @@ if __name__ == '__main__':
                     if typ == 1 and money >= 100:
                         x_p = (board.get_cell(event.pos)[0]) * 180 + 20
                         y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        Peas(x=x_p, y=y_p)
                         money -= 100
                     elif typ == 2 and money >= 50:
                         x_p = (board.get_cell(event.pos)[0]) * 180 + 20
                         y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        Sunflower(x=x_p, y=y_p)
                         money -= 50
                     elif typ == 3 and money >= 50:
                         x_p = (board.get_cell(event.pos)[0]) * 180 + 20
                         y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Plant(plants, num=typ, x=x_p, y=y_p)
+                        Nut(x=x_p, y=y_p)
                         money -= 50
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sun in suns:
