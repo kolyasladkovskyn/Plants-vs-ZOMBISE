@@ -57,6 +57,7 @@ def load_image(name, colorkey=None):
         image = image.convert_alpha()
     return image
 
+
 class Sun(pygame.sprite.Sprite):
     sun = load_image("sun.png", colorkey="white")
 
@@ -72,16 +73,21 @@ class Sun(pygame.sprite.Sprite):
 
         self.kill()
 
+
 class Zombi(pygame.sprite.Sprite):
     def __init__(self, image):
         super().__init__(zombis)
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = 1730
-        self.rect.y = random.randint(0, 4) * 180 + 130
+        self.rect.y = self.y_pos = random.randint(0, 4) * 180 + 130
+        self.v = 10
+        self.clock = pygame.time.Clock()
+        self.x_pos = 1730
 
     def update(self):
-        self.rect = self.rect.move(-1, 0)
+        self.x_pos += -0.125
+        self.rect.center = (self.x_pos, self.y_pos + 90)
         if self.rect.x <= 20:
             self.kill()
 
@@ -91,15 +97,18 @@ class Zombi1(Zombi):
         super().__init__(load_image("zombi_1.png"))
         self.health = 100
 
+
 class Zombi2(Zombi):
     def __init__(self):
         super().__init__(load_image("zombi_2.png"))
         self.health = 150
 
+
 class Zombi3(Zombi):
     def __init__(self):
         super().__init__(load_image("zombi_3.png"))
         self.health = 200
+
 
 class Plant(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -111,17 +120,21 @@ class Plant(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+
 class Peas(Plant):
     def __init__(self, x, y):
         super().__init__(load_image("re.png"), x, y)
+
 
 class Sunflower(Plant):
     def __init__(self, x, y):
         super().__init__(load_image("sn.png"), x, y)
 
+
 class Nut(Plant):
     def __init__(self, x, y):
         super().__init__(load_image("cu.png"), x, y)
+
 
 if __name__ == '__main__':
     image = load_image("grass.png")
@@ -229,4 +242,4 @@ if __name__ == '__main__':
         plants.draw(screen)
         zombis.update()
         pygame.display.flip()
-    pygame.quit()       
+    pygame.quit()
