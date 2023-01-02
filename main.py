@@ -10,6 +10,13 @@ screen = pygame.display.set_mode(size)
 DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 
+def text(text, Textcolor, Rectcolor, x, y, fsize):
+    font = pygame.font.Font('freesansbold.ttf', fsize)
+    text = font.render(text, True, Textcolor, Rectcolor)
+    textRect = text.get_rect()
+    textRect.center = (x, y)
+    screen.blit(text, textRect)
+
 class Board:
     def __init__(self, width, height):
         self.width = width
@@ -142,6 +149,7 @@ class Peas(Plant):
     def __init__(self, x, y):
         super().__init__(load_image("re.png"), x, y, 200)
 
+
 class Sunflower(Plant):
     def __init__(self, x, y):
         super().__init__(load_image("sn.png"), x, y, 200)
@@ -257,6 +265,7 @@ if __name__ == '__main__':
         if ti2 >= 5000:
             Sun(suns)
             ti2 = 0
+        text(str(f'{money}'), (225, 225, 225), (0, 0, 0), 300, 50, 20)
         suns.draw(screen)
         zombis.draw(screen)
         plants.draw(screen)
