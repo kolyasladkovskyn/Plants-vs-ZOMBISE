@@ -17,6 +17,7 @@ def text(text, Textcolor, Rectcolor, x, y, fsize):
     textRect.center = (x, y)
     screen.blit(text, textRect)
 
+
 class Board:
     def __init__(self, width, height):
         self.width = width
@@ -82,11 +83,12 @@ class Sun(pygame.sprite.Sprite):
 
 
 class Zombi(pygame.sprite.Sprite):
-    def __init__(self, image):
+    def __init__(self, image, health):
         super().__init__(zombis)
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = 1730
+        self.health = health
         self.rect.y = self.y_pos = random.randint(0, 4) * 180 + 130
         self.v = 10
         self.clock = pygame.time.Clock()
@@ -99,32 +101,37 @@ class Zombi(pygame.sprite.Sprite):
             self.kill()
 
     def update(self):
-        if not pygame.sprite.spritecollideany(self, plants):
+        if pygame.sprite.spritecollideany(self, peases) or pygame.sprite.spritecollideany(self, sunflowers) \
+                or pygame.sprite.spritecollideany(self, nuts):
+            pass
+        else:
             self.update1()
-
+        if pygame.sprite.spritecollideany(self, bullets):
+            self.health -= 25
+            if self.health <= 0:
+                self.kill()
 
 
 class Zombi1(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_1.png"))
-        self.health = 100
+        super().__init__(load_image("zombi_1.png", colorkey="white"), 100)
 
 
 class Zombi2(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_2.png"))
+        super().__init__(load_image("zombi_2.png"), 150)
         self.health = 150
 
 
 class Zombi3(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_3.png"))
+        super().__init__(load_image("zombi_3.png"), 200)
         self.health = 200
 
 
 class Plant(pygame.sprite.Sprite):
-    def __init__(self, image, x, y, health):
-        super().__init__(plants)
+    def __init__(self, group, image, x, y, health):
+        super().__init__(group)
         self.health = health
         self.image = image
         self.x = x
@@ -147,24 +154,44 @@ class Plant(pygame.sprite.Sprite):
 
 class Peas(Plant):
     def __init__(self, x, y):
-        super().__init__(load_image("re.png"), x, y, 200)
+        super().__init__(peases, load_image("re.png"), x, y, 200)
 
 
 class Sunflower(Plant):
     def __init__(self, x, y):
-        super().__init__(load_image("sn.png"), x, y, 200)
+        super().__init__(sunflowers, load_image("sn.png"), x, y, 200)
+
 
 class Nut(Plant):
     def __init__(self, x, y):
-        super().__init__(load_image("cu.png"), x, y, 1000)
+        super().__init__(nuts, load_image("cu.png"), x, y, 1000)
+
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(bullets)
+        self.image = load_image("bullet.png")
+        self.rect = self.image.get_rect()
+        self.rect.bottom = y
+        self.rect.centerx = x
+        self.speedy = 1
+
+    def update(self):
+        self.rect.x += self.speedy
+        if self.rect.bottom < 0:
+            self.kill()
 
 
 if __name__ == '__main__':
     image = load_image("grass.png")
     image2 = load_image("grass2.png")
     zombis = pygame.sprite.Group()
-    plants = pygame.sprite.Group()
+    sunflowers = pygame.sprite.Group()
+    peases = pygame.sprite.Group()
+    nuts = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
     suns = pygame.sprite.Group()
     plant = pygame.sprite.Sprite()
     plant.image = load_image("green.png")
@@ -191,6 +218,7 @@ if __name__ == '__main__':
     board = Board(10, 5)
     d = 0
     running = True
+    ti3 = 0
     for i in range(5):
         if y % 2 == 0:
             x = 0
@@ -211,6 +239,7 @@ if __name__ == '__main__':
     clock2 = pygame.time.Clock()
     ti = 0
     clock = pygame.time.Clock()
+    clock3 = pygame.time.Clock()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -226,26 +255,20 @@ if __name__ == '__main__':
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     if typ == 1 and money >= 100:
-                        for sun in suns:
-                            if not sun.rect.collidepoint(x, y):
-                                x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                                y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                                Peas(x=x_p, y=y_p)
-                                money -= 100
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Peas(x=x_p, y=y_p)
+                        money -= 100
                     elif typ == 2 and money >= 50:
-                        for sun in suns:
-                            if not sun.rect.collidepoint(x, y):
-                                x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                                y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                                Sunflower(x=x_p, y=y_p)
-                                money -= 50
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Sunflower(x=x_p, y=y_p)
+                        money -= 50
                     elif typ == 3 and money >= 50:
-                        for sun in suns:
-                            if not sun.rect.collidepoint(x, y):
-                                x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                                y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                                Nut(x=x_p, y=y_p)
-                                money -= 50
+                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                        Nut(x=x_p, y=y_p)
+                        money -= 50
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sun in suns:
                     if sun.rect.collidepoint(event.pos):
@@ -253,6 +276,13 @@ if __name__ == '__main__':
                         money += 25
         ti += clock.tick()
         ti2 += clock2.tick()
+        ti3 += clock3.tick()
+        if len(peases) > 0:
+            if ti3 >= 2000:
+                for peas in peases:
+                    x_pe, y_pe, d, c = peas.rect
+                    Bullet(x=x_pe + 180, y=y_pe + 60)
+                    ti3 = 0
         if ti >= 15000:
             d = random.randint(0, 2)
             if d == 0:
@@ -268,8 +298,14 @@ if __name__ == '__main__':
         text(str(f'{money}'), (225, 225, 225), (0, 0, 0), 300, 50, 20)
         suns.draw(screen)
         zombis.draw(screen)
-        plants.draw(screen)
-        plants.update()
+        bullets.draw(screen)
+        peases.draw(screen)
+        sunflowers.draw(screen)
+        nuts.draw(screen)
+        peases.update()
+        sunflowers.update()
+        nuts.update()
         zombis.update()
+        bullets.update()
         pygame.display.flip()
     pygame.quit()
