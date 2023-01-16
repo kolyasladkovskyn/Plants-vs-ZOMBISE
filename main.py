@@ -77,8 +77,9 @@ class Sun(pygame.sprite.Sprite):
         self.rect.y = random.randint(0, 4) * 180 + 130
 
     def update(self):
-        print(1)
-
+        self.rect = self.rect.move(0, 0)
+        self.rect.x = random.randint(0, 9) * 180 + 20
+        self.rect.y
         self.kill()
 
 
@@ -87,29 +88,29 @@ class Zombi(pygame.sprite.Sprite):
         super().__init__(zombis)
         self.image = image
         self.rect = self.image.get_rect()
-        self.rect.x = 1730
+        self.rect.x = self.x_pos = 1730
         self.health = health
         self.rect.y = self.y_pos = random.randint(0, 4) * 180 + 130
-        self.v = 10
         self.clock = pygame.time.Clock()
-        self.x_pos = 1730
+        self.center = [1730, self.rect.y]
 
     def update1(self):
-        self.x_pos += -0.125
+        self.x_pos += -0.9
         self.rect.center = (self.x_pos, self.y_pos + 90)
         if self.rect.x <= 20:
             self.kill()
 
     def update(self):
+        if pygame.sprite.spritecollideany(self, bullets):
+            self.health -= 25
+            print(self.health)
+            if self.health <= 0:
+                self.kill()
         if pygame.sprite.spritecollideany(self, peases) or pygame.sprite.spritecollideany(self, sunflowers) \
                 or pygame.sprite.spritecollideany(self, nuts):
             pass
         else:
             self.update1()
-        if pygame.sprite.spritecollideany(self, bullets):
-            self.health -= 25
-            if self.health <= 0:
-                self.kill()
 
 
 class Zombi1(Zombi):
@@ -143,9 +144,10 @@ class Plant(pygame.sprite.Sprite):
         self.ti = 0
 
     def update(self):
+        self.rect = self.rect.move(0, 0)
         if pygame.sprite.spritecollideany(self, zombis):
             self.ti += clock.tick()
-            if self.ti >= 100:
+            if self.ti >= 300:
                 self.health -= 50
                 self.ti = 0
             if self.health <= 0:
@@ -167,20 +169,37 @@ class Nut(Plant):
         super().__init__(nuts, load_image("cu.png"), x, y, 1000)
 
 
+class Button(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(button)
+        self.image = load_image("clan.png", colorkey="white")
+        self.rect = self.image.get_rect()
+        self.rect.x = 1800
+        self.rect.y = 10
+
+    def update(self):
+        self.rect = self.rect.move(0, 0)
+
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         super().__init__(bullets)
         self.image = load_image("bullet.png")
         self.rect = self.image.get_rect()
-        self.rect.bottom = y
-        self.rect.centerx = x
-        self.speedy = 1
+        self.rect.x = y
+        self.rect.y = x
+        self.speedy = 5
+        self.clock = pygame.time.Clock()
+        self.ti = 0
 
     def update(self):
         self.rect.x += self.speedy
-        if self.rect.bottom < 0:
-            self.kill()
+        if self.rect.x >= 1730 or pygame.sprite.spritecollideany(self, zombis):
+            self.ti += clock.tick()
+            if self.ti >= 2:
+                self.kill()
+                self.ti = 0
 
 
 if __name__ == '__main__':
@@ -191,121 +210,154 @@ if __name__ == '__main__':
     peases = pygame.sprite.Group()
     nuts = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
+    button = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     suns = pygame.sprite.Group()
-    plant = pygame.sprite.Sprite()
-    plant.image = load_image("green.png")
-    plant.rect = plant.image.get_rect()
-    plant.rect.x = 10
-    plant.rect.y = 10
-    all_sprites.add(plant)
-    sunflower = pygame.sprite.Sprite()
-    sunflower.image = load_image("sunflow.png")
-    sunflower.rect = plant.image.get_rect()
-    sunflower.rect.x = 100
-    sunflower.rect.y = 10
-    all_sprites.add(sunflower)
-    nut = pygame.sprite.Sprite()
-    nut.image = load_image("nut.png")
-    nut.rect = plant.image.get_rect()
-    nut.rect.x = 190
-    nut.rect.y = 10
-    all_sprites.add(nut)
     typ = 0
-    x = 0
-    y = 0
     money = 0
     board = Board(10, 5)
     d = 0
     running = True
     ti3 = 0
-    for i in range(5):
-        if y % 2 == 0:
-            x = 0
-            y += 1
-        else:
-            x = 1
-            y += 1
-        for t in range(10):
-            if x % 2 == 0:
-                x += 1
-                screen.blit(image, (20 + 180 * t, 130 + 180 * i))
-            else:
-                x += 1
-                screen.blit(image2, (20 + 180 * t, 130 + 180 * i))
-    all_sprites.draw(screen)
-    board.render(screen)
     ti2 = 0
     clock2 = pygame.time.Clock()
     ti = 0
+    ti4 = 0
+    i = 0
     clock = pygame.time.Clock()
+    clock4 = pygame.time.Clock()
     clock3 = pygame.time.Clock()
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    typ = 1
-                elif event.key == pygame.K_2:
-                    typ = 2
-                elif event.key == pygame.K_3:
-                    typ = 3
-            if typ != 0:
+        if i != 1:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_1:
+                        typ = 1
+                    elif event.key == pygame.K_2:
+                        typ = 2
+                    elif event.key == pygame.K_3:
+                        typ = 3
+                if typ != 0:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = event.pos
+                        if typ == 1 and money >= 100:
+                            x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                            y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                            Peas(x=x_p, y=y_p)
+                            money -= 100
+                            typ = 0
+                        elif typ == 2 and money >= 50:
+                            x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                            y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                            Sunflower(x=x_p, y=y_p)
+                            money -= 50
+                            typ = 0
+                        elif typ == 3 and money >= 50:
+                            x_p = (board.get_cell(event.pos)[0]) * 180 + 20
+                            y_p = (board.get_cell(event.pos)[1]) * 180 + 130
+                            Nut(x=x_p, y=y_p)
+                            money -= 50
+                            typ = 0
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    if typ == 1 and money >= 100:
-                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Peas(x=x_p, y=y_p)
-                        money -= 100
-                    elif typ == 2 and money >= 50:
-                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Sunflower(x=x_p, y=y_p)
-                        money -= 50
-                    elif typ == 3 and money >= 50:
-                        x_p = (board.get_cell(event.pos)[0]) * 180 + 20
-                        y_p = (board.get_cell(event.pos)[1]) * 180 + 130
-                        Nut(x=x_p, y=y_p)
-                        money -= 50
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for sun in suns:
-                    if sun.rect.collidepoint(event.pos):
-                        sun.update()
+                    for sun in suns:
+                        if sun.rect.collidepoint(event.pos):
+                            sun.update()
+                            money += 25
+                    for but in button:
+                        if but.rect.collidepoint(event.pos):
+                            running = False
+            ti += clock.tick()
+            ti2 += clock2.tick()
+            ti3 += clock3.tick()
+            ti4 += clock4.tick()
+            plant = pygame.sprite.Sprite()
+            plant.image = load_image("green.png")
+            plant.rect = plant.image.get_rect()
+            plant.rect.x = 10
+            plant.rect.y = 10
+            all_sprites.add(plant)
+            sunflower = pygame.sprite.Sprite()
+            sunflower.image = load_image("sunflow.png")
+            sunflower.rect = plant.image.get_rect()
+            sunflower.rect.x = 100
+            sunflower.rect.y = 10
+            all_sprites.add(sunflower)
+            nut = pygame.sprite.Sprite()
+            nut.image = load_image("nut.png")
+            nut.rect = plant.image.get_rect()
+            nut.rect.x = 190
+            nut.rect.y = 10
+            all_sprites.add(nut)
+            Button()
+            if len(peases) > 0:
+                if ti3 >= 8000:
+                    for peas in peases:
+                        y_pe, x_pe, d, c = peas.rect
+                        Bullet(x=x_pe, y=y_pe)
+                        ti3 = 0
+            if len(sunflowers) > 0:
+                if ti4 >= 5000:
+                    for sunflower in sunflowers:
                         money += 25
-        ti += clock.tick()
-        ti2 += clock2.tick()
-        ti3 += clock3.tick()
-        if len(peases) > 0:
-            if ti3 >= 2000:
-                for peas in peases:
-                    x_pe, y_pe, d, c = peas.rect
-                    Bullet(x=x_pe + 180, y=y_pe + 60)
-                    ti3 = 0
-        if ti >= 15000:
-            d = random.randint(0, 2)
-            if d == 0:
-                Zombi1()
-            elif d == 1:
-                Zombi2()
-            elif d == 2:
-                Zombi3()
-            ti = 0
-        if ti2 >= 5000:
-            Sun(suns)
-            ti2 = 0
-        text(str(f'{money}'), (225, 225, 225), (0, 0, 0), 300, 50, 20)
-        suns.draw(screen)
-        zombis.draw(screen)
-        bullets.draw(screen)
-        peases.draw(screen)
-        sunflowers.draw(screen)
-        nuts.draw(screen)
-        peases.update()
-        sunflowers.update()
-        nuts.update()
-        zombis.update()
-        bullets.update()
-        pygame.display.flip()
+                        ti4 = 0
+            if len(zombis) > 0:
+                for zombi in zombis:
+                    x_pe, y_pe, d, c = zombi.rect
+                    if x_pe == 25:
+                        print("+")
+                        i = 1
+            if ti >= 15000:
+                d = random.randint(0, 2)
+                if d == 0:
+                    Zombi1()
+                elif d == 1:
+                    Zombi2()
+                elif d == 2:
+                    Zombi3()
+                ti = 0
+            if ti2 >= 5000:
+                Sun(suns)
+                ti2 = 0
+            screen.fill((0, 0, 0))
+            text(str(f'{money}'), (225, 225, 225), (0, 0, 0), 300, 50, 20)
+            x = 0
+            y = 0
+            for op in range(5):
+                if y % 2 == 0:
+                    x = 0
+                    y += 1
+                else:
+                    x = 1
+                    y += 1
+                for t in range(10):
+                    if x % 2 == 0:
+                        x += 1
+                        screen.blit(image, (20 + 180 * t, 130 + 180 * op))
+                    else:
+                        x += 1
+                        screen.blit(image2, (20 + 180 * t, 130 + 180 * op))
+            if typ == 1:
+                pygame.draw.rect(screen, (0, 0, 225), (5, 5, 83, 120), width=0)
+            elif typ == 2:
+                pygame.draw.rect(screen, (0, 0, 225), (5 + 86, 5, 83, 120), width=0)
+            elif typ == 3:
+                pygame.draw.rect(screen, (0, 0, 225), (5 + 172, 5, 83, 120), width=0)
+            board.render(screen)
+            suns.draw(screen)
+            zombis.draw(screen)
+            bullets.draw(screen)
+            button.draw(screen)
+            all_sprites.draw(screen)
+            peases.draw(screen)
+            sunflowers.draw(screen)
+            nuts.draw(screen)
+            peases.update()
+            sunflowers.update()
+            button.update()
+            nuts.update()
+            zombis.update()
+            bullets.update()
+            pygame.display.flip()
     pygame.quit()
