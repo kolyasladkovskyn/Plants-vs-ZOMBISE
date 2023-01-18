@@ -115,19 +115,17 @@ class Zombi(pygame.sprite.Sprite):
 
 class Zombi1(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_1.png", colorkey="white"), 100)
+        super().__init__(load_image("zombi_1.png", colorkey="white"), 50)
 
 
 class Zombi2(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_2.png"), 150)
-        self.health = 150
+        super().__init__(load_image("zombi_2.png"), 100)
 
 
 class Zombi3(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_3.png"), 200)
-        self.health = 200
+        super().__init__(load_image("zombi_3.png"), 150)
 
 
 class Plant(pygame.sprite.Sprite):
@@ -189,7 +187,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = y
         self.rect.y = x
-        self.speedy = 5
+        self.speedy = 10
         self.clock = pygame.time.Clock()
         self.ti = 0
 
@@ -197,7 +195,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += self.speedy
         if self.rect.x >= 1730 or pygame.sprite.spritecollideany(self, zombis):
             self.ti += clock.tick()
-            if self.ti >= 2:
+            if self.ti >= 100:
                 self.kill()
                 self.ti = 0
 
@@ -216,6 +214,7 @@ if __name__ == '__main__':
     typ = 0
     money = 0
     board = Board(10, 5)
+    board1 = Board(10, 3)
     d = 0
     running = True
     ti3 = 0
@@ -228,7 +227,7 @@ if __name__ == '__main__':
     clock4 = pygame.time.Clock()
     clock3 = pygame.time.Clock()
     while running:
-        if i != 1:
+        if i == 0:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -306,7 +305,6 @@ if __name__ == '__main__':
                 for zombi in zombis:
                     x_pe, y_pe, d, c = zombi.rect
                     if x_pe == 25:
-                        print("+")
                         i = 1
             if ti >= 15000:
                 d = random.randint(0, 2)
@@ -360,4 +358,16 @@ if __name__ == '__main__':
             zombis.update()
             bullets.update()
             pygame.display.flip()
+        else:
+            break
+    screen.fill((0, 0, 0))
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        print(3)
+        screen.fill((0, 0, 0))
+        board1.render(screen)
+        pygame.display.flip()
     pygame.quit()
