@@ -178,6 +178,21 @@ class Button(pygame.sprite.Sprite):
     def update(self):
         self.rect = self.rect.move(0, 0)
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(player)
+        self.image = load_image("player.png", colorkey="white")
+        self.rect = self.image.get_rect()
+        print(1)
+        self.rect.x = 380
+        self.rect.y = 130
+
+    def update(self, a):
+        if a == 1:
+            self.rect = self.rect.move(0, 180)
+        elif a == 2:
+            self.rect = self.rect.move(0, -180)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -210,6 +225,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     button = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    player = pygame.sprite.Group()
     suns = pygame.sprite.Group()
     typ = 0
     money = 0
@@ -362,12 +378,22 @@ if __name__ == '__main__':
             break
     screen.fill((0, 0, 0))
     running = True
+    Player()
+    m = 1
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        print(3)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s and m < 3 :
+                    player.update(a=1)
+                    m += 1
+                elif event.key == pygame.K_w and m > 1:
+                    player.update(a=2)
+                    m -= 1
+
         screen.fill((0, 0, 0))
+        player.draw(screen)
         board1.render(screen)
         pygame.display.flip()
     pygame.quit()
