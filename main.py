@@ -5,9 +5,8 @@ import random
 import pygame
 
 pygame.init()
-size = width, height = 800, 400
+size = width, height = 1900, 1100
 screen = pygame.display.set_mode(size)
-DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 
 def text(text, Textcolor, Rectcolor, x, y, fsize):
@@ -115,7 +114,7 @@ class Zombi(pygame.sprite.Sprite):
 
 class Zombi1(Zombi):
     def __init__(self):
-        super().__init__(load_image("zombi_1.png", colorkey="white"), 50)
+        super().__init__(load_image("zombi_1.png"), 50)
 
 
 class Zombi2(Zombi):
@@ -189,16 +188,33 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 130
 
     def update(self, a):
-        if a == 1:
-            self.rect = self.rect.move(0, 180)
-        elif a == 2:
-            self.rect = self.rect.move(0, -180)
+        if pygame.sprite.spritecollideany(self, walls):
+            print(2)
+            self.kill()
+        if a != 3:
+            if a == 1:
+                self.rect = self.rect.move(0, 180)
+            elif a == 2:
+                self.rect = self.rect.move(0, -180)
 
+
+class Wall(pygame.sprite.Sprite):
+    imo = 0
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(walls)
+        self.image = load_image("wall.png", colorkey="white")
+        self.rect = self.image.get_rect()
+        self.rect.x = 1280
+        self.rect.y = random.randint(0, 2) * 180 + 130
+
+    def update(self):
+        self.rect.x -= 1.5
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         super().__init__(bullets)
-        self.image = load_image("bullet.png")
+        self.image = load_image("bullet.png", colorkey="white")
         self.rect = self.image.get_rect()
         self.rect.x = y
         self.rect.y = x
@@ -225,6 +241,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     button = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    walls = pygame.sprite.Group()
     player = pygame.sprite.Group()
     suns = pygame.sprite.Group()
     typ = 0
@@ -380,6 +397,8 @@ if __name__ == '__main__':
     running = True
     Player()
     m = 1
+    clock5 = pygame.time.Clock()
+    ti5 = 0
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -391,9 +410,17 @@ if __name__ == '__main__':
                 elif event.key == pygame.K_w and m > 1:
                     player.update(a=2)
                     m -= 1
-
+        ti5 += clock.tick()
+        if len(player) == 0:
+            break
+        if ti5 > 3000:
+            Wall()
+            ti5 = 0
         screen.fill((0, 0, 0))
         player.draw(screen)
+        player.update(a=3)
+        walls.draw(screen)
+        walls.update()
         board1.render(screen)
         pygame.display.flip()
     pygame.quit()
